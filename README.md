@@ -33,5 +33,6 @@ This plugin supports all modes of the ZFP compression library, *rate*,
 point data. It can be applied to HDF5 datasets of more than 3 dimensions
 (or 4 dimensions for ZFP versions 0.5.5 and newer) as long as no more than 3
 (or 4) dimensions of the HDF5 dataset chunking are of size greater than 1.
+OpenMP multi-threaded support can be enabled for ZFP compression operations.
 
 [**Full documentation**](http://h5z-zfp.readthedocs.io)

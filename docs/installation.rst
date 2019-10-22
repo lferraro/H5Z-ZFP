@@ -62,6 +62,7 @@ Compiling ZFP
   library compiled  differently from this, the  filter's ``can_apply`` method will always return
   false. This will result in silently ignoring an HDF5_ client's  request to compress data with
   ZFP_. Also, be sure to see :ref:`endian-issues`.
+* If OpenMP multi-threaded parallel execution is desired, compile with ZFP_WITH_OPENMP=1
 * After you have setup ``Config``, simply run ``make`` and it will build the ZFP_ library placing
   the library in a ``lib`` sub-directory and the necessary include files in ``inc[lude]`` sub-directory.
 * For more information and details, please see the `ZFP README <https://github.com/LLNL/zfp/blob/master/README.md>`_.
@@ -109,6 +110,14 @@ line as in...
         ZFP_HOME=<path-to-zfp> HDF5_HOME=<path-to-hdf5>
         PREFIX=<path-to-install>
 
+If you want to enable OpenMP multi-threaded support for ZFP compression operations
+pass WITH_OMP_SUPPORT=1 within other make options, as in ...
+
+::
+
+    make [FC=<Fortran-compiler>] CC=<C-compiler>
+        ZFP_HOME=<path-to-zfp> HDF5_HOME=<path-to-hdf5>
+        WITH_OMP_SUPPORT=1 PREFIX=<path-to-install>
 
 The Makefile uses  GNU Make syntax and is designed to  work on OSX and
 Linux. The filter has been tested on gcc, clang, xlc, icc and pgcc  compilers

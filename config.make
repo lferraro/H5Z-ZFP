@@ -123,6 +123,11 @@ else ifneq ($(findstring f77, $(FC)),)
     FC =
 endif
 
+ifdef WITH_OMP_SUPPORT
+    CFLAGS += -fopenmp -DWITH_OMP_SUPPORT
+    LDFLAGS += -fopenmp
+endif
+
 ifeq ($(wildcard $(ZFP_HOME)/include),)
 ZFP_INC = $(ZFP_HOME)/inc
 else
