@@ -21,6 +21,10 @@ and calls to bitstream methods with 'B ' as in
     B stream_open(...);
 */
 
+#ifdef WITH_OMP_SUPPORT
+#include "omp.h"
+#endif // WITH_OMP_SUPPORT
+
 #ifdef Z
 #undef Z
 #endif
