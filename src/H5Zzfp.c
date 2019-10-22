@@ -547,7 +547,7 @@ H5Z_filter_zfp(unsigned int flags, size_t cd_nelmts,
 
         if (0 == (zstr = Z zfp_stream_open(bstr)))
             H5Z_ZFP_PUSH_AND_GOTO(H5E_RESOURCE, H5E_NOSPACE, 0, "zfp stream open failed");
-
+	    
         Z zfp_stream_set_mode(zstr, zfp_mode);
 
         /* Do the ZFP decompression operation */
@@ -598,6 +598,43 @@ H5Z_filter_zfp(unsigned int flags, size_t cd_nelmts,
         if (0 == (zstr = Z zfp_stream_open(0)))
             H5Z_ZFP_PUSH_AND_GOTO(H5E_RESOURCE, H5E_NOSPACE, 0, "zfp stream open failed");
 
+
+#ifdef WITH_OMP_SUPPORT
+/* set parallel OMP execution for long buffers */
+{
+
+	/* this parameter prevents OMP parallelization for buffer smaller than this size */
+        const size_t min_stream_size_per_thread = 1<<18; // @TODO: this should be chosen from plugin setup
+
+	/* get uncompress field size */
+	const size_t field_type = zfp_type_size(zfld->type);
+        const size_t uncompressed_size = field_type * zfp_field_size(zfld, NULL);
+	
+        if ( uncompressed_size > min_stream_size_per_thread) // prevent OMP for small buffers
+        {
+          /* get default number of OMP threads */
+          uint nthreads = omp_get_max_threads(); // @TODO: this should be chosen from plugin setup
+
+          /* activate OMP execution policy */
+          if (zfp_stream_set_execution(zstr, zfp_exec_omp) == 0) {
+            H5Z_ZFP_PUSH_AND_GOTO(H5E_PLINE, H5E_CANTGET, 0, "cannot set OMP execution");
+          }
+
+          /* restrict number of active threads if buffer is too small */
+          while (nthreads > 1 && uncompressed_size/nthreads < min_stream_size_per_thread) {
+            nthreads--;
+          }
+
+          /* set number of active threads */
+          if (zfp_stream_set_omp_threads(zstr, nthreads) == 0) {
+            H5Z_ZFP_PUSH_AND_GOTO(H5E_PLINE, H5E_CANTGET, 0, "cannot set OMP threads");
+          }
+
+	  // @TODO: chunk size could be also selected from plugin setup
+        }
+}
+#endif // WITH_OMP_SUPPORT
+	    
         Z zfp_stream_set_mode(zstr, zfp_mode);
         msize = Z zfp_stream_maximum_size(zstr, zfld);
 
